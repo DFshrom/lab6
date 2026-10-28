@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lab 06 - JSON</title>
+</head>
+<body>
+  <h2>JSON Console Output</h2>
+  <p>Open <strong>Inspect &gt; Console</strong> in your browser to view the output.</p>
+
+  <script>
+    const jsonString = `[
+      {
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "publicationYear": 1925,
+        "genres": ["Fiction", "Classics"]
+      },
+      {
+        "title": "To Kill a Mockingbird",
+        "author": "Harper Lee",
+        "publicationYear": 1960,
+        "genres": ["Fiction", "Coming-of-Age"]
+      }
+    ]`;
+
+    const books = JSON.parse(jsonString);
+
+    console.log("=== Lab 06 Output ===");
+
+    console.log("Title of the first book:", books[0].title);
+
+    console.log("Author of the second book:", books[1].author);
+
+    console.log("Genres of all books:");
+    books.forEach((book, index) => {
+      console.log(` Book ${index + 1} (${book.title}):`, book.genres.join(", "));
+    });
+  </script>
+</body>
+</html>
