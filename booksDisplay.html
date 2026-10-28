@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fetch and Display Book Records</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f4f6f8;
+    }
+    .card-container {
+      max-width: 480px;
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    select {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .book-card {
+      border-left: 4px solid #007bff;
+      padding-left: 1rem;
+      background: #f8f9fa;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    .error {
+      font-weight: bold;
+    }
+    .loading {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card-container">
+    <h2>Book Collection Search</h2>
+    
+    <label for="bookSelect">Select a Book Title:</label>
+    <select id="bookSelect">
+      <option value="">- Choose a Book -</option>
+    </select>
+
+    <div id="bookDetails"></div>
+  </div>
+
+  <script>
+    const GITHUB_JSON_URL = '[suspicious link removed]';
+    
+    let booksData = [];
+
+    const selectElement = document.getElementById('bookSelect');
+    const detailsContainer = document.getElementById('bookDetails');
+
+    async function loadBooksFromGitHub() {
+      detailsContainer.innerHTML = '<p class="loading">Loading book records from GitHub...</p>';
+      
+      try {
+        const response = await fetch(GITHUB_JSON_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        booksData = await response.json();
+        populateBookSelectOptions(booksData);
+        detailsContainer.innerHTML = '<p>Please select a book from the list above.</p>';
+      } catch (error) {
+        detailsContainer.innerHTML = `<p class="error">Error loading data: ${error.message}</p>`;
+      }
+    }
+
+    function populateBookSelectOptions(books) {
+      books.forEach(book => {
+        const option = document.createElement('option');
+        option.value = book.title;
+        option.textContent = book.title;
+        selectElement.appendChild(option);
+      });
+    }
+
+    selectElement.addEventListener('change', (event) => {
+      const selectedTitle = event.target.value;
+
+      if (!selectedTitle) {
+        detailsContainer.innerHTML = '<p>Please select a book from the list above.</p>';
+        return;
+      }
+
+      const matchedBook = booksData.find(book => book.title === selectedTitle);
+
+      if (matchedBook) {
+        const genresText = Array.isArray(matchedBook.genres) 
+          ? matchedBook.genres.join(', ') 
+          : matchedBook.genres;
+
+        detailsContainer.innerHTML = `
+          <div class="book-card">
+            <h3>${matchedBook.title}</h3>
+            <p><strong>Author:</strong> ${matchedBook.author}</p>
+            <p><strong>Publication Year:</strong> ${matchedBook.publicationYear}</p>
+            <p><strong>Genre:</strong> ${genresText}</p>
+          </div>
+        `;
+      } else {
+        detailsContainer.innerHTML = '<p class="error">Selected book record was not found.</p>';
+      }
+    });
+
+    loadBooksFromGitHub();
+  </script>
+
+</body>
+</html>
